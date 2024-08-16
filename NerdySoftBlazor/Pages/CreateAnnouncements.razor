@@ -31,10 +31,8 @@ else
 }
 
 @code {
-// Model for creating a new announcement
 private CreateAnnouncementDto _newAnnouncement;
 
-// Initialization method that sets up the component
 protected override async Task OnInitializedAsync()
 {
 // Initialize _newAnnouncement with default values or any required data
@@ -46,17 +44,14 @@ Date = DateTime.Now
 };
 }
 
-// Method to create a new announcement
 private async Task CreateAnnouncement()
 {
 try
 {
-// Replace with the actual token
 var result = await AnnouncementService.CreateAsync(_newAnnouncement, "your-token-here");
 
 if (result.IsSuccess)
 {
-// Navigate to the announcements list page after successful creation
 NavigationManager.NavigateTo("/announcements");
 }
 else
