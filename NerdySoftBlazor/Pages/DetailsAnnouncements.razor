@@ -39,13 +39,13 @@
 
     private async Task LoadAnnouncementDetails()
     {
-        var result = await AnnouncementService.GetByIdAsync(Id, "your-token-here"); // Replace with the actual token
+        var result = await AnnouncementService.GetByIdAsync(Id, "your-token-here"); 
         if (result.IsSuccess)
         {
             _announcement = result.Value;
 
 // Load similar announcements
-            var similarResult = await RecommendationService.GetSimilar(Id, "your-token-here"); // Replace with the actual token
+            var similarResult = await RecommendationService.GetSimilar(Id, "your-token-here"); 
             if (similarResult.IsSuccess)
             {
                 _similarAnnouncements = similarResult.Value.Take(3).ToList();
