@@ -1,0 +1,65 @@
+@page "/edit-announcement/{id:guid}"
+@inject IAnnouncementService AnnouncementService
+@inject NavigationManager NavigationManager
+@using MudBlazor
+@using NerdySoftBlazor.Dto.AnnouncementDto
+@using NerdySoftBlazor.Service.IServices
+
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.h5">Edit Announcement</MudText>
+        <MudTextField @bind-Value="_announcement.Title" Label="Title" Required="true" />
+        <MudTextField @bind-Value="_announcement.Description" Label="Description" Required="true" />
+        <MudDatePicker
+            @bind-Date="_announcement.Date"
+            Label="Date"
+            DateFormat="dd.MM.yyyy"
+            IconSize="Size.Small"
+            Required="true" />
+
+        <MudButton OnClick="EditAnnouncement" Color="Color.Primary">Save</MudButton>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private UpdateAnnouncementDto _announcement = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnnouncementDetails();
+    }
+
+    private async Task LoadAnnouncementDetails()
+    {
+        var result = await AnnouncementService.GetByIdAsync(Id, "your-token-here"); // Replace with the actual token
+        if (result.IsSuccess)
+        {
+            var data = result.Value;
+            _announcement = new UpdateAnnouncementDto
+            {
+                Id = data.Id,
+                Title = data.Title,
+                Description = data.Description,
+                Date = data.Date
+            };
+        }
+        else
+        {
+            Console.WriteLine($"Error loading announcement details: {result.ErrorMessage}");
+        }
+    }
+
+    private async Task EditAnnouncement()
+    {
+        var result = await AnnouncementService.UpdateAsync(Id, _announcement, "your-token-here"); // Replace with the actual token
+        if (result.IsSuccess)
+        {
+            NavigationManager.NavigateTo("/announcements");
+        }
+        else
+        {
+            Console.WriteLine($"Error editing announcement: {result.ErrorMessage}");
+        }
+    }
+}

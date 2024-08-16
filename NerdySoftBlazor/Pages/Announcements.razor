@@ -1,0 +1,93 @@
+@page "/announcements"
+@inject IAnnouncementService AnnouncementService
+@using MudBlazor
+@using NerdySoftBlazor.Dto.AnnouncementDto
+@using NerdySoftBlazor.Service.IServices
+@inject NavigationManager NavigationManager
+
+<MudCard>
+    <MudCardContent>
+        <MudTable Items="_announcements" Loading="_loading">
+            <HeaderContent>
+                <MudTh>Title</MudTh>
+                <MudTh>Description</MudTh>
+                <MudTh>Date</MudTh>
+                <MudTh>Actions</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Title">@context.Title</MudTd>
+                <MudTd DataLabel="Description">@context.Description</MudTd>
+                <MudTd DataLabel="Date">@context.Date.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>
+                    <MudButton OnClick="() => NavigateToDetails(context.Id)" Color="Color.Inherit">View Details</MudButton>
+                    <MudButton OnClick="() => NavigateToEdit(context.Id)" Color="Color.Success">Edit</MudButton>
+                    <MudButton OnClick="() => DeleteAnnouncement(context.Id)" Color="Color.Error">Delete</MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+        <MudButton OnClick="() => NavigateToCreate()" Color="Color.Success">Create</MudButton>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    private List<AnnouncementDto> _announcements = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnnouncements();
+    }
+
+    private async Task LoadAnnouncements()
+    {
+        _loading = true;
+        try
+        {
+            var result = await AnnouncementService.GetAsync("your-token-here"); // Replace with the actual token
+            if (result.IsSuccess && result.Value != null)
+            {
+                _announcements = result.Value;
+            }
+            else
+            {
+                Console.WriteLine($"Error loading announcements: {result.ErrorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+    
+    private async Task DeleteAnnouncement(Guid id)
+    {
+        var result = await AnnouncementService.DeleteAsync(id, "your-token-here"); // Replace with the actual token
+        if (result.IsSuccess)
+        {
+            await LoadAnnouncements();
+        }
+        else
+        {
+            Console.WriteLine($"Error deleting announcement: {result.ErrorMessage}");
+        }
+    }
+    
+    private void NavigateToDetails(Guid id)
+    {
+        NavigationManager.NavigateTo($"/announcement-details/{id}");
+    }
+    
+    private void NavigateToCreate()
+    {
+        NavigationManager.NavigateTo("/create-announcement");
+    }
+
+    private void NavigateToEdit(Guid id)
+    {
+        NavigationManager.NavigateTo($"/edit-announcement/{id}");
+    }
+}

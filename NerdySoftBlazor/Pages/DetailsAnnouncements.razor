@@ -1,0 +1,65 @@
+@page "/announcement-details/{id:guid}"
+@using NerdySoftBlazor.Dto.AnnouncementDto
+@using NerdySoftBlazor.Service.IServices
+@inject IAnnouncementService AnnouncementService
+@inject IRecommendationService RecommendationService
+@inject NavigationManager NavigationManager
+
+<MudCard>
+    <MudCardContent>
+        <MudText Typo="Typo.h5">Announcement Details</MudText>
+        <MudText Typo="Typo.body1">Title: @_announcement.Title</MudText>
+        <MudText Typo="Typo.body1">Description: @_announcement.Description</MudText>
+        <MudText Typo="Typo.body1">Date Added: @_announcement.Date.ToString("yyyy-MM-dd")</MudText>
+
+        <MudText Typo="Typo.h6">Similar Announcements</MudText>
+        <MudList T="AnnouncementDto">
+            @foreach (var similar in _similarAnnouncements)
+            {
+                <MudListItem T="AnnouncementDto">
+                    <MudLink Style="color: blue; text-decoration: underline;" OnClick="() => NavigateToAnnouncement(similar.Id)">
+                        <MudText Typo="Typo.body2">@similar.Title</MudText>
+                    </MudLink>
+                </MudListItem>
+            }
+        </MudList>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private AnnouncementDto _announcement = new();
+    private List<AnnouncementDto> _similarAnnouncements = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnnouncementDetails();
+    }
+
+    private async Task LoadAnnouncementDetails()
+    {
+        var result = await AnnouncementService.GetByIdAsync(Id, "your-token-here"); // Replace with the actual token
+        if (result.IsSuccess)
+        {
+            _announcement = result.Value;
+
+// Load similar announcements
+            var similarResult = await RecommendationService.GetSimilar(Id, "your-token-here"); // Replace with the actual token
+            if (similarResult.IsSuccess)
+            {
+                _similarAnnouncements = similarResult.Value.Take(3).ToList();
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Error loading announcement details: {result.ErrorMessage}");
+        }
+    }
+
+    private void NavigateToAnnouncement(Guid id)
+    {
+        NavigationManager.NavigateTo($"/announcement-details/{id}", true);
+    }
+
+}
