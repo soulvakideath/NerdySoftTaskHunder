@@ -55,13 +55,11 @@ NavigationManager.NavigateTo("/announcements");
 }
 else
 {
-// Log error if the creation failed
 Console.WriteLine($"Error creating announcement: {result.ErrorMessage}");
 }
 }
 catch (Exception ex)
 {
-// Log unhandled exceptions
 Console.WriteLine($"Unhandled exception: {ex.Message}");
 }
 }
